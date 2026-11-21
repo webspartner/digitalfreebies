@@ -1,0 +1,21 @@
+# Disable directory listing
+Options -Indexes
+
+# Prevent search engines (Google, Bing, etc.) from indexing the secret admin portal and API routes
+<IfModule mod_headers.c>
+  <If "%{REQUEST_URI} =~ m#^/(df-admin77|api|admin|wp-admin)(/|$)#">
+    Header always set X-Robots-Tag "noindex, nofollow, noarchive, nosnippet, noimageindex"
+    Header always set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+  </If>
+</IfModule>
+
+# Block direct access to sensitive configuration and database files
+<FilesMatch "^(\.env|\.git|.*\.db|.*\.sqlite|.*\.sqlite3|package\.json|tsconfig\.json)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>

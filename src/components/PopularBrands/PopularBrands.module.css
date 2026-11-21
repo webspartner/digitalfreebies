@@ -1,0 +1,75 @@
+.brandsSection {
+  padding: var(--space-10) 0;
+  background: var(--color-white);
+  border-top: 1px solid var(--color-gray-200);
+}
+
+.brandsContainer {
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 var(--space-6);
+}
+
+.brandsTitle {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--color-gray-900);
+  margin-bottom: var(--space-4);
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+.tagsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.brandTag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 13px;
+  background: var(--color-white);
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-gray-900);
+  text-decoration: none;
+  line-height: 1.2;
+  white-space: nowrap;
+  transition: border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.brandTag:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  box-shadow: var(--shadow-xs);
+}
+
+@media (max-width: 640px) {
+  .brandsSection {
+    padding: var(--space-6) 0;
+  }
+
+  .brandsContainer {
+    padding: 0 var(--space-4);
+  }
+
+  .brandsTitle {
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+  }
+
+  .tagsList {
+    gap: 7px;
+  }
+
+  .brandTag {
+    padding: 7px 11px;
+    font-size: 0.75rem;
+    border-radius: 7px;
+  }
+}

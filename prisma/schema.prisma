@@ -1,0 +1,185 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Offer {
+  id              Int      @id @default(autoincrement())
+  title           String
+  slug            String   @unique
+  brand           String
+  shortDescription String
+  fullDescription String?
+  metaTitle       String?
+  metaDescription String?
+  imageUrl        String?
+  logoUrl         String?
+  offerUrl        String
+  termsUrl        String?
+  category        String
+  specialCategory String   @default("General Freebies")
+  regions         String   @default("[]")
+  tags            String   @default("[]")
+  label           String?
+  isFeatured      Boolean  @default(false)
+  isTrending      Boolean  @default(false)
+  trendingOrder   Int      @default(1)
+  isActive        Boolean  @default(true)
+  isOnHomepage    Boolean  @default(true)
+  sortOrder       Int      @default(0)
+  expiresAt       DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  reports         OfferReport[]
+}
+
+model OfferReport {
+  id        Int      @id @default(autoincrement())
+  offerId   Int
+  offer     Offer    @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  ipAddress String
+  createdAt DateTime @default(now())
+
+  @@unique([offerId, ipAddress])
+}
+
+model Category {
+  id              Int      @id @default(autoincrement())
+  name            String   @unique
+  slug            String   @unique
+  icon            String   @default("📦")
+  type            String   @default("standard")
+  metaTitle       String?
+  metaDescription String?
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now()) @updatedAt
+}
+
+model Admin {
+  id               Int     @id @default(autoincrement())
+  username         String  @unique
+  email            String?
+  passwordHash     String
+  role             String  @default("admin") // "admin" | "moderator"
+  twoFactorEnabled Boolean @default(false)
+  twoFactorSecret  String?
+}
+
+model FaqItem {
+  id        Int    @id @default(autoincrement())
+  question  String
+  answer    String
+  sortOrder Int    @default(0)
+}
+
+model BannerSlide {
+  id             Int      @id @default(autoincrement())
+  title          String
+  subtitle       String?
+  imageUrl       String
+  mobileImageUrl String?
+  linkUrl        String
+  sortOrder      Int      @default(0)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model User {
+  id                    Int            @id @default(autoincrement())
+  username              String         @unique
+  email                 String         @unique
+  passwordHash          String
+  emailVerified         Boolean        @default(false)
+  verificationCodeHash  String?
+  verificationExpiresAt DateTime?
+  resetTokenHash        String?
+  resetTokenExpiresAt   DateTime?
+  isBanned              Boolean        @default(false)
+  banReason             String?
+  bannedAt              DateTime?
+  lastIp                String?
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+  posts                 ForumPost[]
+  comments              ForumComment[]
+}
+
+model BannedIp {
+  id        Int      @id @default(autoincrement())
+  ipAddress String   @unique
+  reason    String?
+  bannedBy  String?
+  userId    Int?
+  username  String?
+  createdAt DateTime @default(now())
+}
+
+model SmtpSettings {
+  id        Int      @id @default(1)
+  host      String   @default("")
+  port      Int      @default(587)
+  secure    Boolean  @default(false)
+  username  String   @default("")
+  password  String   @default("")
+  fromName  String   @default("DigitalFreebies.io")
+  fromEmail String   @default("")
+  requireEmailVerification Boolean @default(true)
+  updatedAt DateTime @updatedAt
+}
+
+model ForumPost {
+  id          Int            @id @default(autoincrement())
+  title       String
+  slug        String         @unique
+  dealUrl     String
+  brand       String?
+  category    String         @default("General")
+  description String
+  authorName  String         @default("Anonymous")
+  authorEmail String?
+  userId      Int?
+  user        User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  ipAddress   String?
+  status      String         @default("pending") // "pending", "approved", "rejected"
+  upvotes     Int            @default(0)
+  comments    ForumComment[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model ForumComment {
+  id         Int       @id @default(autoincrement())
+  postId     Int
+  post       ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorName String    @default("Anonymous")
+  userId     Int?
+  user       User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  ipAddress  String?
+  content    String
+  createdAt  DateTime  @default(now())
+}
+
+model AuditLog {
+  id        Int      @id @default(autoincrement())
+  actor     String
+  actorRole String   @default("admin")
+  action    String
+  category  String   @default("general")
+  summary   String
+  ipAddress String?
+  createdAt DateTime @default(now())
+}
+
+model AnalyticsSettings {
+  id                 Int      @id @default(1)
+  measurementId      String   @default("") // e.g. G-XXXXXXXXXX
+  propertyId         String   @default("") // e.g. 123456789
+  serviceAccountJson String   @default("") // Google Service Account JSON
+  updatedAt          DateTime @updatedAt
+}
