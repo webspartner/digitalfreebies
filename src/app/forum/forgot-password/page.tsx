@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer/Footer';
+import TurnstileWidget from '@/components/TurnstileWidget/TurnstileWidget';
 import { useForumAuth } from '@/context/ForumAuthContext';
 import styles from '../forum.module.css';
 
@@ -12,6 +13,9 @@ function ForgotPasswordForm() {
   const [step, setStep] = useState<'request' | 'reset'>('request');
   const [email, setEmail] = useState('');
   const [website, setWebsite] = useState(''); // Honeypot
+  const [turnstileToken, setTurnstileToken] = useState('');
+  const [turnstileEnabled, setTurnstileEnabled] = useState(false);
+  const [turnstileResetKey, setTurnstileResetKey] = useState(0);
   const [code, setCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -28,6 +32,12 @@ function ForgotPasswordForm() {
     e.preventDefault();
     setError('');
     setInfoMessage('');
+
+    if (turnstileEnabled && !turnstileToken) {
+      setError('Please complete the Cloudflare security check');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -37,12 +47,14 @@ function ForgotPasswordForm() {
         body: JSON.stringify({
           email: email.trim(),
           website,
+          turnstileToken,
         }),
       });
 
       const data = await res.json();
       if (!res.ok) {
         setError(data.error || 'Failed to send password reset email');
+        if (turnstileEnabled) setTurnstileResetKey((k) => k + 1);
         return;
       }
 
@@ -180,6 +192,12 @@ function ForgotPasswordForm() {
                 autoComplete="email"
               />
             </div>
+
+            <TurnstileWidget
+              onVerify={setTurnstileToken}
+              onStatusChange={setTurnstileEnabled}
+              resetKey={turnstileResetKey}
+            />
 
             <button
               type="submit"

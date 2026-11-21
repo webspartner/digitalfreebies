@@ -1677,7 +1677,7 @@ export default function AdminSettingsPage() {
               </div>
 
               <p style={{ fontSize: '13px', color: 'var(--color-gray-500)', marginBottom: '20px', lineHeight: 1.5 }}>
-                Enter your Cloudflare Turnstile <strong>Site Key</strong> and <strong>Secret Key</strong>. When both keys are set, the Turnstile challenge is shown and verified on <strong>Forum Registration</strong>, <strong>Forum Login</strong>, and <strong>Admin Login</strong>. Leave either field empty to hide Turnstile completely.
+                Enter your Cloudflare Turnstile <strong>Site Key</strong> and <strong>Secret Key</strong>. When both keys are set, the Turnstile challenge is shown and verified on <strong>Forum Registration</strong>, <strong>Forum Login</strong>, <strong>Forgot Password</strong>, and <strong>Admin Login</strong>. Leave either field empty to hide Turnstile completely.
               </p>
 
               <form onSubmit={handleSaveTurnstile}>

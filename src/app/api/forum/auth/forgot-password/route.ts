@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { email, website } = body;
+    const { email, website, turnstileToken } = body;
 
     // Honeypot check
     if (website) {
@@ -49,6 +49,16 @@ export async function POST(request: NextRequest) {
           message: 'If an account with that email address exists, we have sent a 6-digit password reset code.',
         },
         { status: 200, headers: { 'Cache-Control': 'no-store' } }
+      );
+    }
+
+    // Cloudflare Turnstile verification (skipped when keys are empty)
+    const { verifyTurnstileToken } = await import('@/lib/technicalSettings');
+    const turnstileCheck = await verifyTurnstileToken(turnstileToken, ip);
+    if (!turnstileCheck.success) {
+      return NextResponse.json(
+        { error: turnstileCheck.error || 'Please complete the Cloudflare security check' },
+        { status: 400, headers: { 'Cache-Control': 'no-store' } }
       );
     }
 
