@@ -26,6 +26,14 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  async rewrites() {
+    return [
+      {
+        source: '/images/:folder(offers|brands|sliders|banners|assets|hero)/:path*',
+        destination: '/api/serve-image/:folder/:path*',
+      },
+    ];
+  },
   async headers() {
     const securityHeaders = [
       {
