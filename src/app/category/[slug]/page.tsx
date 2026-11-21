@@ -2,7 +2,6 @@ import { cache } from 'react';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import Header from '@/components/Header/Header';
-import WeeklyFreebies from '@/components/WeeklyFreebies/WeeklyFreebies';
 import OfferGrid from '@/components/OfferGrid/OfferGrid';
 import Footer from '@/components/Footer/Footer';
 import prisma from '@/lib/prisma';
@@ -93,15 +92,9 @@ export default async function CategoryPage({ params }: PageProps) {
     ],
   });
 
-  const isStudentFreebies =
-    slug === 'student-freebies' || categoryName === 'Student Freebies';
-
   return (
     <>
       <Header />
-      {isStudentFreebies && offers.length > 0 && (
-        <WeeklyFreebies offers={offers} />
-      )}
       <OfferGrid
         offers={offers}
         title={`${categoryName} Offers`}
