@@ -30,6 +30,12 @@
   overflow: hidden;
 }
 
+.heroBannerContainer {
+  position: relative;
+  width: 100%;
+  margin-bottom: 54px;
+}
+
 .heroImageWrapper {
   position: relative;
   width: 100%;
@@ -37,8 +43,37 @@
   max-height: 320px;
   border-radius: 5px;
   overflow: hidden;
-  margin-bottom: var(--space-6, 24px);
   background: var(--color-gray-100, #f5f5f5);
+}
+
+.heroLogoCircle {
+  position: absolute;
+  bottom: -40px;
+  left: 32px;
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  background: var(--color-white, #ffffff);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  z-index: 3;
+}
+
+.heroLogoImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
+.heroLogoLetter {
+  font-size: 34px;
+  font-weight: 800;
+  color: var(--color-primary, #6a0b9e);
 }
 
 .imageBadge {
@@ -367,10 +402,20 @@
     border-radius: 12px;
   }
 
+  .heroBannerContainer {
+    margin-bottom: 46px;
+  }
+
   .heroImageWrapper {
     aspect-ratio: 16 / 9;
-    margin-bottom: 16px;
     border-radius: 8px;
+  }
+
+  .heroLogoCircle {
+    width: 76px;
+    height: 76px;
+    bottom: -32px;
+    left: 20px;
   }
 
   .title {

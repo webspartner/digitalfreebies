@@ -99,18 +99,32 @@ export default async function OfferDetailPage({ params }: PageProps) {
         <div className={styles.container}>
           {/* Left content column */}
           <article className={styles.mainContent}>
-            {/* Offer Hero Image */}
+            {/* Offer Hero Image with overlapping bottom-left Brand Logo Circle */}
             {offer.imageUrl && (
-              <div className={styles.heroImageWrapper}>
-                <Image
-                  src={offer.imageUrl}
-                  alt={offer.title}
-                  fill
-                  className={styles.heroImage}
-                  sizes="(max-width: 768px) 100vw, 800px"
-                  priority
-                  unoptimized
-                />
+              <div className={styles.heroBannerContainer}>
+                <div className={styles.heroImageWrapper}>
+                  <Image
+                    src={offer.imageUrl}
+                    alt={offer.title}
+                    fill
+                    className={styles.heroImage}
+                    sizes="(max-width: 768px) 100vw, 800px"
+                    priority
+                    unoptimized
+                  />
+                </div>
+
+                <div className={styles.heroLogoCircle}>
+                  {offer.logoUrl ? (
+                    <img
+                      src={offer.logoUrl}
+                      alt={offer.brand}
+                      className={styles.heroLogoImg}
+                    />
+                  ) : (
+                    <span className={styles.heroLogoLetter}>{offer.brand.charAt(0)}</span>
+                  )}
+                </div>
               </div>
             )}
 
