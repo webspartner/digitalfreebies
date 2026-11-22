@@ -65,6 +65,9 @@ export default function Footer({ hideNewsletter = false }: FooterProps) {
               </svg>
             </a>
           </div>
+          <p className={styles.footerDisclaimer}>
+            All product names, logos, and brands are property of their respective owners and are used for identification purposes only. This site is independent and not affiliated with or endorsed by any listed company.
+          </p>
         </div>
 
         {/* Categories */}
@@ -104,9 +107,6 @@ export default function Footer({ hideNewsletter = false }: FooterProps) {
 
       {/* Bottom bar */}
       <div className={styles.footerBottom}>
-        <div className={styles.footerDisclaimer}>
-          All product names, logos, and brands are property of their respective owners and are used for identification purposes only. This site is independent and not affiliated with or endorsed by any listed company.
-        </div>
         <div className={styles.footerBottomContent}>
           <span>© {new Date().getFullYear()} DigitalFreebies.io — All rights reserved.</span>
           <div className={styles.footerBottomLinks}>
