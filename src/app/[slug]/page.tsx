@@ -10,7 +10,7 @@ import { slugifyBrand } from '@/lib/brands';
 import styles from './offerDetail.module.css';
 import ShareButton from './ShareButton';
 import ReportOfferButton from './ReportOfferButton';
-import { OfferRegionBadge, OfferRegionWarning, OfferDetailSidebar } from './OfferRegionInfo';
+import { OfferDetailSidebar } from './OfferRegionInfo';
 
 export const dynamic = 'force-dynamic';
 
@@ -114,48 +114,32 @@ export default async function OfferDetailPage({ params }: PageProps) {
               </div>
             )}
 
-            {/* Breadcrumb / category, brand & region */}
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                gap: '12px',
-                flexWrap: 'wrap',
-                marginBottom: '16px',
-              }}
-            >
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-                {offer.specialCategory && (
-                  <Link
-                    href={`/category/${offer.specialCategory.toLowerCase().replace(/\s+/g, '-')}`}
-                    className={styles.categoryBadge}
-                  >
-                    {offer.specialCategory}
-                  </Link>
-                )}
-                <Link href={`/category/${offer.category}`} className={styles.categoryBadge} style={{ opacity: 0.85 }}>
-                  {offer.category.charAt(0).toUpperCase() + offer.category.slice(1)}
+            {/* Breadcrumb / category & brand */}
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap', marginBottom: '16px' }}>
+              {offer.specialCategory && (
+                <Link
+                  href={`/category/${offer.specialCategory.toLowerCase().replace(/\s+/g, '-')}`}
+                  className={styles.categoryBadge}
+                >
+                  {offer.specialCategory}
                 </Link>
-                {offer.brand && (
-                  <Link
-                    href={`/brand/${slugifyBrand(offer.brand)}`}
-                    className={styles.categoryBadge}
-                    style={{ opacity: 0.75 }}
-                  >
-                    {offer.brand}
-                  </Link>
-                )}
-              </div>
-
-              <OfferRegionBadge regions={offer.regions} />
+              )}
+              <Link href={`/category/${offer.category}`} className={styles.categoryBadge} style={{ opacity: 0.85 }}>
+                {offer.category.charAt(0).toUpperCase() + offer.category.slice(1)}
+              </Link>
+              {offer.brand && (
+                <Link
+                  href={`/brand/${slugifyBrand(offer.brand)}`}
+                  className={styles.categoryBadge}
+                  style={{ opacity: 0.75 }}
+                >
+                  {offer.brand}
+                </Link>
+              )}
             </div>
 
             {/* Title */}
             <h1 className={styles.title}>{offer.title}</h1>
-
-            {/* Region mismatch warning (only shown if offer doesn't match user's selected region) */}
-            <OfferRegionWarning regions={offer.regions} />
 
             {/* Meta info */}
             {offer.expiresAt && (
