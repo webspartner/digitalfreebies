@@ -12,53 +12,62 @@ import {
 import styles from './offerDetail.module.css';
 
 export function OfferRegionBadge({ regions }: { regions?: string | null }) {
+  const isGlobal = isOfferGlobal(regions);
+  const parsedRegions = parseOfferRegions(regions);
+
+  const regionText = isGlobal
+    ? 'Global - All Regions'
+    : parsedRegions.map((r) => REGION_LABELS[r] || r).join(', ');
+
+  return (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '6px',
+        fontSize: '13px',
+        fontWeight: 600,
+        color: 'var(--color-gray-600, #666666)',
+        background: 'transparent',
+        marginLeft: 'auto',
+      }}
+    >
+      <span>🌍</span>
+      <span>{regionText}</span>
+    </span>
+  );
+}
+
+export function OfferRegionWarning({ regions }: { regions?: string | null }) {
   const { selectedRegion } = useRegion();
   const isGlobal = isOfferGlobal(regions);
   const parsedRegions = parseOfferRegions(regions);
   const matchesCurrent = offerMatchesRegion(regions, selectedRegion);
   const currentRegionLabel = REGION_LABELS[selectedRegion] || selectedRegion;
 
+  if (matchesCurrent || selectedRegion === 'Global') {
+    return null;
+  }
+
   const regionText = isGlobal
-    ? 'Global (All Regions)'
+    ? 'Global - All Regions'
     : parsedRegions.map((r) => REGION_LABELS[r] || r).join(', ');
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-        <span
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            fontSize: '13px',
-            fontWeight: 600,
-            color: 'var(--color-gray-700, #555555)',
-            background: 'var(--color-gray-100, #f3f4f6)',
-            padding: '4px 12px',
-            borderRadius: '9999px',
-          }}
-        >
-          <span>🌍</span>
-          <span>Regions: {regionText}</span>
-        </span>
-      </div>
-
-      {!matchesCurrent && selectedRegion !== 'Global' && (
-        <div
-          style={{
-            fontSize: '13px',
-            fontWeight: 500,
-            color: '#b45309',
-            background: 'rgba(245, 158, 11, 0.12)',
-            border: '1px solid rgba(245, 158, 11, 0.3)',
-            padding: '8px 14px',
-            borderRadius: '8px',
-          }}
-        >
-          ⚠️ This freebie may not be available in <strong>{currentRegionLabel}</strong>. Available in:{' '}
-          <strong>{regionText}</strong>.
-        </div>
-      )}
+    <div
+      style={{
+        fontSize: '13px',
+        fontWeight: 500,
+        color: '#b45309',
+        background: 'rgba(245, 158, 11, 0.12)',
+        border: '1px solid rgba(245, 158, 11, 0.3)',
+        padding: '8px 14px',
+        borderRadius: '8px',
+        marginBottom: '16px',
+      }}
+    >
+      ⚠️ This freebie may not be available in <strong>{currentRegionLabel}</strong>. Available in:{' '}
+      <strong>{regionText}</strong>.
     </div>
   );
 }
