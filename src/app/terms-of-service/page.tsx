@@ -235,7 +235,10 @@ export default function TermsOfServicePage() {
 
               {/* 8. Outbound Links */}
               <section id="third-party-links">
-                <h2>8. Outbound Merchant Deals &amp; Third-Party Services</h2>
+                <h2>8. Outbound Merchant Deals, Trademarks &amp; Third-Party Services</h2>
+                <div className={styles.highlightBox}>
+                  <strong>Trademark &amp; Non-Affiliation Notice:</strong> All product names, logos, and brands are property of their respective owners and are used for identification purposes only. This site is independent and not affiliated with or endorsed by any listed company.
+                </div>
                 <p>
                   DigitalFreebies.io contains links to websites operated by independent third parties. When you click an external link, you leave DigitalFreebies.io and become subject to the terms and privacy practices of that third-party platform. We do not endorse, guarantee, or assume responsibility for any products, services, or representations made by external providers.
                 </p>

@@ -166,7 +166,10 @@ export default function DisclaimerPage() {
 
               {/* 3. Third-Party Links */}
               <section id="third-party-links">
-                <h2>3. Third-Party Merchants &amp; External Links Disclaimer</h2>
+                <h2>3. Third-Party Merchants, Trademarks &amp; External Links Disclaimer</h2>
+                <div className={styles.highlightBox}>
+                  <strong>Trademark &amp; Non-Affiliation Disclaimer:</strong> All product names, logos, and brands are property of their respective owners and are used for identification purposes only. This site is independent and not affiliated with or endorsed by any listed company.
+                </div>
                 <p>
                   DigitalFreebies.io contains outbound links to external websites that are not provided, maintained, or in any way affiliated with us. When you click &ldquo;Go to Offer&rdquo; or any deal button, you leave DigitalFreebies.io and enter a third-party website.
                 </p>

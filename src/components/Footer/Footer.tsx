@@ -104,11 +104,15 @@ export default function Footer({ hideNewsletter = false }: FooterProps) {
 
       {/* Bottom bar */}
       <div className={styles.footerBottom}>
+        <div className={styles.footerDisclaimer}>
+          All product names, logos, and brands are property of their respective owners and are used for identification purposes only. This site is independent and not affiliated with or endorsed by any listed company.
+        </div>
         <div className={styles.footerBottomContent}>
           <span>© {new Date().getFullYear()} DigitalFreebies.io — All rights reserved.</span>
           <div className={styles.footerBottomLinks}>
             <Link href="/privacy-policy" className={styles.footerBottomLink}>Privacy</Link>
             <Link href="/terms-of-service" className={styles.footerBottomLink}>Terms</Link>
+            <Link href="/disclaimer" className={styles.footerBottomLink}>Disclaimer</Link>
             <Link href="/sitemap" className={styles.footerBottomLink}>Sitemap</Link>
           </div>
         </div>
