@@ -233,9 +233,11 @@ export default function AdminOffersPage() {
         return (aRep - bRep) * dir;
       }
       if (sortField === 'status') {
-        const aVal = a.isActive ? 1 : 0;
-        const bVal = b.isActive ? 1 : 0;
-        return (aVal - bVal) * dir;
+        const getStatusRank = (o: Offer) =>
+          !o.isActive ? 0 : isOfferExpired(o.expiresAt) ? 1 : 2;
+        const diff = (getStatusRank(a) - getStatusRank(b)) * dir;
+        if (diff !== 0) return diff;
+        return a.title.localeCompare(b.title);
       }
 
       // Default: 'date'

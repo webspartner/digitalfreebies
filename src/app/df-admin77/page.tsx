@@ -68,7 +68,11 @@ export default function AdminDashboard() {
         return ((a._count?.reports || 0) - (b._count?.reports || 0)) * dir;
       }
       if (sortField === 'status') {
-        return ((a.isActive ? 1 : 0) - (b.isActive ? 1 : 0)) * dir;
+        const getStatusRank = (o: Offer) =>
+          !o.isActive ? 0 : isOfferExpired(o.expiresAt) ? 1 : 2;
+        const diff = (getStatusRank(a) - getStatusRank(b)) * dir;
+        if (diff !== 0) return diff;
+        return a.title.localeCompare(b.title);
       }
       return 0;
     });
@@ -99,7 +103,7 @@ export default function AdminDashboard() {
       const flaggedOffers: Offer[] = notWorkingData.offers || [];
 
       setStats({
-        activeOffers: allOffers.filter((o: Offer) => o.isActive).length,
+        activeOffers: allOffers.filter((o: Offer) => o.isActive && !isOfferExpired(o.expiresAt)).length,
         visitsToday: analyticsData?.summary?.visitsToday || 0,
         visitsThisMonth: analyticsData?.summary?.visitsThisMonth || 0,
         pageviewsThisMonth: analyticsData?.summary?.pageviewsThisMonth || 0,
