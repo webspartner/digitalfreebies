@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { isOfferExpired } from '@/lib/utils';
 import styles from './OfferCard.module.css';
 
 interface OfferCardProps {
@@ -14,6 +15,7 @@ interface OfferCardProps {
   label: string | null;
   category: string;
   specialCategory?: string | null;
+  expiresAt?: Date | string | null;
 }
 
 const BRAND_COLORS: Record<string, string> = {
@@ -53,11 +55,17 @@ export default function OfferCard({
   imageUrl,
   logoUrl,
   specialCategory,
+  expiresAt,
 }: OfferCardProps) {
   const bgGradient = BRAND_COLORS[brand] || 'linear-gradient(135deg, #667eea, #764ba2)';
+  const expired = isOfferExpired(expiresAt);
 
   return (
-    <Link href={`/${slug}`} prefetch={false} className={styles.card}>
+    <Link
+      href={`/${slug}`}
+      prefetch={false}
+      className={`${styles.card} ${expired ? styles.cardExpired : ''}`}
+    >
       {/* Image area with uploaded image or brand gradient + logo */}
       <div className={styles.cardImageWrapper}>
         <div
@@ -86,6 +94,10 @@ export default function OfferCard({
             )}
           </div>
         )}
+
+        {expired && (
+          <span className={styles.expiredBadge}>Expired</span>
+        )}
       </div>
 
       {/* Content */}
@@ -93,8 +105,14 @@ export default function OfferCard({
         <span className={styles.cardBrand}>{specialCategory || 'General Freebies'}</span>
         <h3 className={styles.cardTitle}>{title}</h3>
         <p className={styles.cardDescription}>{shortDescription}</p>
-        <span className={styles.cardButton}>
-          Check More <span className={styles.cardButtonArrow}>→</span>
+        <span className={`${styles.cardButton} ${expired ? styles.cardButtonExpired : ''}`}>
+          {expired ? (
+            'Expired'
+          ) : (
+            <>
+              Check More <span className={styles.cardButtonArrow}>→</span>
+            </>
+          )}
         </span>
       </div>
     </Link>

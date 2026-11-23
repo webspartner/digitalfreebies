@@ -19,6 +19,7 @@ interface Offer {
   category: string;
   specialCategory?: string | null;
   regions?: string | null;
+  expiresAt?: Date | string | null;
 }
 
 interface OfferGridProps {

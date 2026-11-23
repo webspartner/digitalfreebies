@@ -10,6 +10,7 @@ import ForumCTA from '@/components/ForumCTA/ForumCTA';
 import Footer from '@/components/Footer/Footer';
 import prisma from '@/lib/prisma';
 import { getPopularBrands } from '@/lib/brands';
+import { getNotExpiredWhere } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,28 +30,30 @@ const CARD_OFFER_SELECT = {
 } as const;
 
 export default async function HomePage() {
+  const notExpiredWhere = getNotExpiredWhere();
+
   const [featuredOffers, trendingOffers, allOffers, faqItems, popularBrands] = await Promise.all([
-    // Fetch featured offers for the slider
+    // Fetch featured offers for the slider (never show expired on homepage)
     prisma.offer.findMany({
-      where: { isActive: true, isFeatured: true },
+      where: { isActive: true, isFeatured: true, ...notExpiredWhere },
       select: CARD_OFFER_SELECT,
       orderBy: [
         { sortOrder: 'asc' },
         { createdAt: 'desc' },
       ],
     }),
-    // Fetch trending offers (ordered by trendingOrder 1..12)
+    // Fetch trending offers (ordered by trendingOrder 1..12, never show expired on homepage)
     prisma.offer.findMany({
-      where: { isActive: true, isTrending: true },
+      where: { isActive: true, isTrending: true, ...notExpiredWhere },
       select: CARD_OFFER_SELECT,
       orderBy: [
         { trendingOrder: 'asc' },
         { updatedAt: 'desc' },
       ],
     }),
-    // Fetch all active offers for the grid
+    // Fetch all active offers for the grid (never show expired on homepage)
     prisma.offer.findMany({
-      where: { isActive: true, isOnHomepage: true },
+      where: { isActive: true, isOnHomepage: true, ...notExpiredWhere },
       select: CARD_OFFER_SELECT,
       orderBy: [
         { sortOrder: 'asc' },

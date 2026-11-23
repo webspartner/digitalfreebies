@@ -7,6 +7,7 @@ import Header from '@/components/Header/Header';
 import Footer from '@/components/Footer/Footer';
 import prisma from '@/lib/prisma';
 import { slugifyBrand } from '@/lib/brands';
+import { isOfferExpired, getNotExpiredWhere } from '@/lib/utils';
 import styles from './offerDetail.module.css';
 import ShareButton from './ShareButton';
 import ReportOfferButton from './ReportOfferButton';
@@ -47,13 +48,17 @@ export default async function OfferDetailPage({ params }: PageProps) {
 
   if (!offer) notFound();
 
+  const expired = isOfferExpired(offer.expiresAt);
+  const notExpiredWhere = getNotExpiredWhere();
+
   const [trendingOffers, latestOffers] = await Promise.all([
-    // Get trending freebies (excluding current offer)
+    // Get trending freebies (excluding current offer and expired offers)
     prisma.offer.findMany({
       where: {
         slug: { not: offer.slug },
         isActive: true,
         isTrending: true,
+        ...notExpiredWhere,
       },
       select: {
         id: true,
@@ -69,11 +74,12 @@ export default async function OfferDetailPage({ params }: PageProps) {
         { updatedAt: 'desc' },
       ],
     }),
-    // Get latest freebies (excluding current offer)
+    // Get latest freebies (excluding current offer and expired offers)
     prisma.offer.findMany({
       where: {
         slug: { not: offer.slug },
         isActive: true,
+        ...notExpiredWhere,
       },
       select: {
         id: true,
@@ -102,7 +108,10 @@ export default async function OfferDetailPage({ params }: PageProps) {
             {/* Offer Hero Image with overlapping bottom-left Brand Logo Circle */}
             {offer.imageUrl && (
               <div className={styles.heroBannerContainer}>
-                <div className={styles.heroImageWrapper}>
+                <div
+                  className={styles.heroImageWrapper}
+                  style={expired ? { filter: 'grayscale(100%)', opacity: 0.78 } : undefined}
+                >
                   <Image
                     src={offer.imageUrl}
                     alt={offer.title}
@@ -112,6 +121,26 @@ export default async function OfferDetailPage({ params }: PageProps) {
                     priority
                     unoptimized
                   />
+                  {expired && (
+                    <span
+                      style={{
+                        position: 'absolute',
+                        top: '14px',
+                        left: '14px',
+                        zIndex: 4,
+                        background: 'rgba(31, 41, 55, 0.9)',
+                        color: '#ffffff',
+                        fontSize: '12px',
+                        fontWeight: 700,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.6px',
+                        padding: '5px 12px',
+                        borderRadius: '9999px',
+                      }}
+                    >
+                      Expired
+                    </span>
+                  )}
                 </div>
 
                 <div className={styles.heroLogoCircle}>
@@ -155,14 +184,30 @@ export default async function OfferDetailPage({ params }: PageProps) {
             {/* Title */}
             <h1 className={styles.title}>{offer.title}</h1>
 
-            {/* Meta info */}
-            {offer.expiresAt && (
+            {/* Meta info / Expired notice */}
+            {expired ? (
+              <div
+                style={{
+                  background: '#f3f4f6',
+                  border: '1px solid #d1d5db',
+                  color: '#4b5563',
+                  padding: '12px 16px',
+                  borderRadius: '8px',
+                  marginBottom: '20px',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                }}
+              >
+                ⏰ This freebie expired on{' '}
+                {new Date(offer.expiresAt!).toLocaleDateString()} and may no longer be available.
+              </div>
+            ) : offer.expiresAt ? (
               <div className={styles.metaRow}>
                 <span className={styles.expiry}>
                   ⏰ Expires: {new Date(offer.expiresAt).toLocaleDateString()}
                 </span>
               </div>
-            )}
+            ) : null}
 
             {/* Description */}
             <div className={styles.descriptionSection}>
@@ -205,8 +250,17 @@ export default async function OfferDetailPage({ params }: PageProps) {
                 rel="noopener noreferrer"
                 className={styles.ctaButton}
                 id="go-to-offer-btn"
+                style={
+                  expired
+                    ? {
+                        color: '#6b7280',
+                        borderColor: '#d1d5db',
+                        background: '#f3f4f6',
+                      }
+                    : undefined
+                }
               >
-                Go to Freebie →
+                {expired ? 'Offer Expired — Check Link →' : 'Go to Freebie →'}
               </a>
               <ShareButton slug={offer.slug} />
             </div>

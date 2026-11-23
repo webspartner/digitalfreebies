@@ -5,6 +5,7 @@ import OfferGrid from '@/components/OfferGrid/OfferGrid';
 import Footer from '@/components/Footer/Footer';
 import prisma from '@/lib/prisma';
 import { slugifyBrand } from '@/lib/brands';
+import { sortExpiredLast } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,6 +32,7 @@ const getBrandOffers = cache(async (slug: string) => {
       category: true,
       specialCategory: true,
       regions: true,
+      expiresAt: true,
     },
     orderBy: [
       { sortOrder: 'asc' },
@@ -38,8 +40,8 @@ const getBrandOffers = cache(async (slug: string) => {
     ],
   });
 
-  const matchingOffers = allActiveOffers.filter(
-    (offer) => slugifyBrand(offer.brand) === slug
+  const matchingOffers = sortExpiredLast(
+    allActiveOffers.filter((offer) => slugifyBrand(offer.brand) === slug)
   );
 
   const brandName =

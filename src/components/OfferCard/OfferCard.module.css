@@ -155,3 +155,42 @@
 .card:hover .cardButtonArrow {
   transform: translateX(3px);
 }
+
+/* Expired card state */
+.cardExpired {
+  opacity: 0.68;
+  filter: grayscale(100%);
+  background: var(--color-gray-50, #f8f9fa);
+}
+
+.cardExpired:hover {
+  opacity: 0.82;
+  transform: translateY(-2px);
+}
+
+.expiredBadge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 4;
+  background: rgba(31, 41, 55, 0.88);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+}
+
+.cardButtonExpired {
+  color: var(--color-gray-500, #757575);
+  border-color: var(--color-gray-300, #d1d5db);
+  background: var(--color-gray-100, #f3f4f6);
+}
+
+.cardExpired:hover .cardButtonExpired {
+  color: var(--color-gray-600, #555555);
+  border-color: var(--color-gray-400, #9ca3af);
+  background: var(--color-gray-200, #e5e7eb);
+}

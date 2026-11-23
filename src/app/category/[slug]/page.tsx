@@ -5,6 +5,7 @@ import Header from '@/components/Header/Header';
 import OfferGrid from '@/components/OfferGrid/OfferGrid';
 import Footer from '@/components/Footer/Footer';
 import prisma from '@/lib/prisma';
+import { sortExpiredLast } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -85,6 +86,7 @@ export default async function CategoryPage({ params }: PageProps) {
       category: true,
       specialCategory: true,
       regions: true,
+      expiresAt: true,
     },
     orderBy: [
       { sortOrder: 'asc' },
@@ -92,11 +94,13 @@ export default async function CategoryPage({ params }: PageProps) {
     ],
   });
 
+  const sortedOffers = sortExpiredLast(offers);
+
   return (
     <>
       <Header />
       <OfferGrid
-        offers={offers}
+        offers={sortedOffers}
         title={`${categoryName} Offers`}
         initialCount={12}
       />

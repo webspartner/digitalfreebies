@@ -3,6 +3,7 @@ import OfferGrid from '@/components/OfferGrid/OfferGrid';
 import Footer from '@/components/Footer/Footer';
 import prisma from '@/lib/prisma';
 import { REGION_LABELS } from '@/lib/regions';
+import { sortExpiredLast } from '@/lib/utils';
 import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
@@ -41,11 +42,13 @@ export default async function SearchPage({ searchParams }: PageProps) {
     ],
   });
 
-  // Remove tags (Hot, New, Popular) from search results while keeping regions for client/context filtering
-  const offersWithoutTags = offers.map((offer) => ({
-    ...offer,
-    label: null,
-  }));
+  // Remove tags (Hot, New, Popular) from search results and move expired offers to the end
+  const offersWithoutTags = sortExpiredLast(
+    offers.map((offer) => ({
+      ...offer,
+      label: null,
+    }))
+  );
 
   return (
     <>
