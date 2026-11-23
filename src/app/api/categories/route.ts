@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { verifyToken } from '@/lib/auth';
+import { getAdminFromRequest } from '@/lib/auth';
 import { createSlug } from '@/lib/utils';
+
+export const dynamic = 'force-dynamic';
 
 // GET /api/categories
 export async function GET(request: NextRequest) {
@@ -18,7 +20,11 @@ export async function GET(request: NextRequest) {
       where,
       orderBy: [{ sortOrder: 'asc' }, { name: 'asc' }],
     });
-    return NextResponse.json(categories);
+    return NextResponse.json(categories, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate',
+      },
+    });
   } catch (error) {
     console.error('Error fetching categories:', error);
     return NextResponse.json({ error: 'Failed to fetch categories' }, { status: 500 });
@@ -28,9 +34,7 @@ export async function GET(request: NextRequest) {
 // POST /api/categories
 export async function POST(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('authorization');
-    const token = authHeader?.replace('Bearer ', '');
-    const admin = token ? verifyToken(token) : null;
+    const admin = getAdminFromRequest(request);
     if (!admin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -82,9 +86,7 @@ export async function POST(request: NextRequest) {
 // PUT /api/categories - Bulk reorder categories via drag & drop
 export async function PUT(request: NextRequest) {
   try {
-    const authHeader = request.headers.get('authorization');
-    const token = authHeader?.replace('Bearer ', '');
-    const admin = token ? verifyToken(token) : null;
+    const admin = getAdminFromRequest(request);
     if (!admin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -105,7 +107,10 @@ export async function PUT(request: NextRequest) {
       )
     );
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json(
+      { success: true },
+      { headers: { 'Cache-Control': 'no-store' } }
+    );
   } catch (error) {
     console.error('Error reordering categories:', error);
     return NextResponse.json({ error: 'Failed to reorder categories' }, { status: 500 });

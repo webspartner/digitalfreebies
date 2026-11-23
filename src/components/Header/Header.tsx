@@ -190,73 +190,55 @@ export default function Header() {
   );
 
   useEffect(() => {
-    if (cachedStandardCategories && cachedSpecialCategories) return;
-
+    // Hydrate immediately from sessionStorage if available (for zero layout jump),
+    // then ALWAYS revalidate fresh order from /api/categories with cache: 'no-store'.
     try {
       const stored = sessionStorage.getItem('df_categories_cache_v1');
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (parsed.ts && Date.now() - parsed.ts < 60_000) {
-          if (Array.isArray(parsed.standard) && parsed.standard.length > 0) {
-            cachedStandardCategories = parsed.standard;
-            setCategoriesList((prev) =>
-              prev.map((p) => p.slug).join(',') === parsed.standard.map((s: { slug: string }) => s.slug).join(',')
-                ? prev
-                : parsed.standard
-            );
-          }
-          if (Array.isArray(parsed.special) && parsed.special.length > 0) {
-            cachedSpecialCategories = parsed.special;
-            setSpecialCategoriesList((prev) =>
-              prev.map((p) => p.slug).join(',') === parsed.special.map((s: { slug: string }) => s.slug).join(',')
-                ? prev
-                : parsed.special
-            );
-          }
-          return;
+        if (Array.isArray(parsed.standard) && parsed.standard.length > 0) {
+          cachedStandardCategories = parsed.standard;
+          setCategoriesList(parsed.standard);
+        }
+        if (Array.isArray(parsed.special) && parsed.special.length > 0) {
+          cachedSpecialCategories = parsed.special;
+          setSpecialCategoriesList(parsed.special);
         }
       }
     } catch {
       // ignore storage errors
     }
 
-    const timer = setTimeout(() => {
-      fetch('/api/categories')
-        .then((res) => res.json())
-        .then((data) => {
-          if (Array.isArray(data) && data.length > 0) {
-            const standard = data.filter((c: { type: string }) => c.type !== 'special');
-            const special = data.filter((c: { type: string }) => c.type === 'special');
-            if (standard.length > 0) {
-              cachedStandardCategories = standard;
-              setCategoriesList((prev) =>
-                prev.map((p) => p.slug).join(',') === standard.map((s: { slug: string }) => s.slug).join(',')
-                  ? prev
-                  : standard
-              );
-            }
-            if (special.length > 0) {
-              cachedSpecialCategories = special;
-              setSpecialCategoriesList((prev) =>
-                prev.map((p) => p.slug).join(',') === special.map((s: { slug: string }) => s.slug).join(',')
-                ? prev
-                : special
-              );
-            }
-            try {
-              sessionStorage.setItem(
-                'df_categories_cache_v1',
-                JSON.stringify({ ts: Date.now(), standard, special })
-              );
-            } catch {
-              // ignore
-            }
-          }
-        })
-        .catch(() => {});
-    }, 150);
-    return () => clearTimeout(timer);
-  }, []);
+    let cancelled = false;
+    fetch('/api/categories', { cache: 'no-store' })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (cancelled || !Array.isArray(data) || data.length === 0) return;
+        const standard = data.filter((c: { type: string }) => c.type !== 'special');
+        const special = data.filter((c: { type: string }) => c.type === 'special');
+        if (standard.length > 0) {
+          cachedStandardCategories = standard;
+          setCategoriesList(standard);
+        }
+        if (special.length > 0) {
+          cachedSpecialCategories = special;
+          setSpecialCategoriesList(special);
+        }
+        try {
+          sessionStorage.setItem(
+            'df_categories_cache_v1',
+            JSON.stringify({ ts: Date.now(), standard, special })
+          );
+        } catch {
+          // ignore
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, [pathname]);
 
   // Sync region from URL query param when landing on /search?region=...
   useEffect(() => {

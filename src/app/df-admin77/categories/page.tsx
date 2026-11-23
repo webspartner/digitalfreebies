@@ -65,7 +65,7 @@ export default function AdminCategoriesPage() {
 
   const fetchCategories = async () => {
     try {
-      const res = await fetch('/api/categories');
+      const res = await fetch('/api/categories', { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         setCategories(data || []);
@@ -79,15 +79,15 @@ export default function AdminCategoriesPage() {
 
   const persistNewOrder = async (nextCategories: Category[]) => {
     const token = localStorage.getItem('admin_token');
-    if (!token) return;
 
     setReorderState('saving');
     try {
       const res = await fetch('/api/categories', {
         method: 'PUT',
+        credentials: 'same-origin',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
           orderedIds: nextCategories.map((c) => c.id),
@@ -98,11 +98,40 @@ export default function AdminCategoriesPage() {
         setReorderState('saved');
         setTimeout(() => setReorderState('idle'), 1800);
       } else {
+        const errData = await res.json().catch(() => ({}));
         setReorderState('idle');
+        await alert(errData.error || 'Failed to save new category order. Please sign in again.');
+        fetchCategories();
       }
     } catch {
       setReorderState('idle');
+      await alert('Network error while saving category order.');
+      fetchCategories();
     }
+  };
+
+  const handleMoveCategory = (id: number, direction: 'up' | 'down') => {
+    const visibleIds = filteredCategories.map((c) => c.id);
+    const fromVisibleIdx = visibleIds.indexOf(id);
+    const toVisibleIdx = direction === 'up' ? fromVisibleIdx - 1 : fromVisibleIdx + 1;
+    if (fromVisibleIdx === -1 || toVisibleIdx < 0 || toVisibleIdx >= visibleIds.length) return;
+
+    const reorderedVisibleIds = [...visibleIds];
+    const [movedId] = reorderedVisibleIds.splice(fromVisibleIdx, 1);
+    reorderedVisibleIds.splice(toVisibleIdx, 0, movedId);
+
+    const catById = new Map(categories.map((c) => [c.id, c]));
+    let visiblePointer = 0;
+    const nextCategories = categories.map((cat) => {
+      if (visibleIds.includes(cat.id)) {
+        const nextId = reorderedVisibleIds[visiblePointer++];
+        return catById.get(nextId)!;
+      }
+      return cat;
+    });
+
+    setCategories(nextCategories);
+    persistNewOrder(nextCategories);
   };
 
   const handleDragStart = (e: React.DragEvent<HTMLTableRowElement>, id: number) => {
@@ -398,7 +427,7 @@ export default function AdminCategoriesPage() {
                     </td>
                   </tr>
                 ) : (
-                  filteredCategories.map((cat) => {
+                  filteredCategories.map((cat, idx) => {
                     const isDragging = draggedId === cat.id;
                     const isDragOver = dragOverId === cat.id && draggedId !== cat.id;
                     return (
@@ -413,10 +442,50 @@ export default function AdminCategoriesPage() {
                           isDragging ? styles.draggingRow : ''
                         } ${isDragOver ? styles.dragOverRow : ''}`}
                       >
-                        <td className={styles.dragHandleCell} title="Drag to reorder">
-                          <span className={styles.dragHandle} aria-hidden="true">
-                            ⋮⋮
-                          </span>
+                        <td className={styles.dragHandleCell} title="Drag or use arrows to reorder">
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            <span className={styles.dragHandle} aria-hidden="true">
+                              ⋮⋮
+                            </span>
+                            <div style={{ display: 'inline-flex', flexDirection: 'column', gap: '1px' }}>
+                              <button
+                                type="button"
+                                onClick={() => handleMoveCategory(cat.id, 'up')}
+                                disabled={idx === 0}
+                                title="Move up"
+                                style={{
+                                  border: 'none',
+                                  background: 'none',
+                                  padding: '0 2px',
+                                  fontSize: '10px',
+                                  lineHeight: 1,
+                                  cursor: idx === 0 ? 'default' : 'pointer',
+                                  opacity: idx === 0 ? 0.25 : 0.75,
+                                  color: 'var(--color-gray-700)',
+                                }}
+                              >
+                                ▲
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleMoveCategory(cat.id, 'down')}
+                                disabled={idx === filteredCategories.length - 1}
+                                title="Move down"
+                                style={{
+                                  border: 'none',
+                                  background: 'none',
+                                  padding: '0 2px',
+                                  fontSize: '10px',
+                                  lineHeight: 1,
+                                  cursor: idx === filteredCategories.length - 1 ? 'default' : 'pointer',
+                                  opacity: idx === filteredCategories.length - 1 ? 0.25 : 0.75,
+                                  color: 'var(--color-gray-700)',
+                                }}
+                              >
+                                ▼
+                              </button>
+                            </div>
+                          </div>
                         </td>
                         <td style={{ fontWeight: 700, color: 'var(--color-gray-900)' }}>
                           <Link
