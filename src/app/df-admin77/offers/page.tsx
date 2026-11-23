@@ -11,6 +11,7 @@ import {
   REGION_LABELS,
   offerMatchesRegion,
 } from '@/lib/regions';
+import { isOfferExpired } from '@/lib/utils';
 
 interface Offer {
   id: number;
@@ -29,6 +30,7 @@ interface Offer {
   isOnHomepage: boolean;
   sortOrder: number;
   slug: string;
+  expiresAt?: string | null;
   createdAt: string;
   updatedAt: string;
   _count?: {
@@ -721,13 +723,25 @@ export default function AdminOffersPage() {
                           )}
                         </td>
                         <td>
-                          <span
-                            className={
-                              offer.isActive ? styles.statusActive : styles.statusInactive
-                            }
-                          >
-                            {offer.isActive ? 'Active' : 'Inactive'}
-                          </span>
+                          {!offer.isActive ? (
+                            <span className={styles.statusInactive}>Inactive</span>
+                          ) : isOfferExpired(offer.expiresAt) ? (
+                            <span
+                              style={{
+                                display: 'inline-block',
+                                fontSize: '12px',
+                                fontWeight: 700,
+                                padding: '3px 10px',
+                                borderRadius: '9999px',
+                                background: 'rgba(107, 114, 128, 0.14)',
+                                color: '#4b5563',
+                              }}
+                            >
+                              Expired
+                            </span>
+                          ) : (
+                            <span className={styles.statusActive}>Active</span>
+                          )}
                         </td>
                         <td>
                           <div className={styles.tableActions}>

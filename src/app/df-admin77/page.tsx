@@ -6,6 +6,7 @@ import Link from 'next/link';
 import styles from './admin.module.css';
 import AdminNav from '@/components/AdminNav/AdminNav';
 import AdminAnalyticsGraph from '@/components/AdminAnalyticsGraph/AdminAnalyticsGraph';
+import { isOfferExpired } from '@/lib/utils';
 
 interface Stats {
   activeOffers: number;
@@ -26,6 +27,7 @@ interface Offer {
   isActive: boolean;
   isFeatured: boolean;
   slug: string;
+  expiresAt?: string | null;
   _count?: {
     reports: number;
   };
@@ -331,9 +333,25 @@ export default function AdminDashboard() {
                         )}
                       </td>
                       <td>
-                        <span className={offer.isActive ? styles.statusActive : styles.statusInactive}>
-                          {offer.isActive ? 'Active' : 'Inactive'}
-                        </span>
+                        {!offer.isActive ? (
+                          <span className={styles.statusInactive}>Inactive</span>
+                        ) : isOfferExpired(offer.expiresAt) ? (
+                          <span
+                            style={{
+                              display: 'inline-block',
+                              fontSize: '12px',
+                              fontWeight: 700,
+                              padding: '3px 10px',
+                              borderRadius: '9999px',
+                              background: 'rgba(107, 114, 128, 0.14)',
+                              color: '#4b5563',
+                            }}
+                          >
+                            Expired
+                          </span>
+                        ) : (
+                          <span className={styles.statusActive}>Active</span>
+                        )}
                       </td>
                       <td>
                         <div className={styles.tableActions}>
