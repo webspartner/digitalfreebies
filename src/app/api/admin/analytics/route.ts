@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import prisma from '@/lib/prisma';
 import { verifyToken, verifyPassword } from '@/lib/auth';
 import { logActivity } from '@/lib/audit';
-import { getTrafficSummary, getTodayIso } from '@/lib/trafficStats';
+import { getTodayIso } from '@/lib/trafficStats';
 
 interface DailyPoint {
   date: string; // YYYY-MM-DD
@@ -138,53 +138,20 @@ export async function GET(request: NextRequest) {
     }
 
     const isGraphConfigured = Boolean(propertyId && clientEmail && privateKey);
-    const localTraffic = await getTrafficSummary();
 
     if (!isGraphConfigured) {
-      const points: DailyPoint[] = [];
-      const today = new Date();
-
-      for (let i = days - 1; i >= 0; i--) {
-        const d = new Date(today);
-        d.setDate(today.getDate() - i);
-        const yyyy = d.getFullYear();
-        const mm = String(d.getMonth() + 1).padStart(2, '0');
-        const dd = String(d.getDate()).padStart(2, '0');
-        const iso = `${yyyy}-${mm}-${dd}`;
-        const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        const rec = localTraffic.dailyRecords[iso];
-
-        points.push({
-          date: iso,
-          label,
-          users: rec?.uniqueVisitors || 0,
-          pageViews: rec?.pageViews || 0,
-          sessions: rec?.visits || 0,
-        });
-      }
-
-      const totals = points.reduce(
-        (acc, pt) => ({
-          users: acc.users + pt.users,
-          pageViews: acc.pageViews + pt.pageViews,
-          sessions: acc.sessions + pt.sessions,
-        }),
-        { users: 0, pageViews: 0, sessions: 0 }
-      );
-
       return NextResponse.json({
-        configured: Boolean(measurementId),
-        source: 'local',
+        configured: false,
         measurementId,
         propertyId,
         hasServiceAccount: Boolean(clientEmail && privateKey),
         clientEmail,
-        points,
-        totals,
+        points: [],
+        totals: { users: 0, pageViews: 0, sessions: 0 },
         summary: {
-          visitsToday: localTraffic.visitsToday,
-          visitsThisMonth: localTraffic.visitsThisMonth,
-          pageviewsThisMonth: localTraffic.pageviewsThisMonth,
+          visitsToday: 0,
+          visitsThisMonth: 0,
+          pageviewsThisMonth: 0,
         },
       });
     }
@@ -229,9 +196,9 @@ export async function GET(request: NextRequest) {
           points: buildDateRangePoints(days, []),
           totals: { users: 0, pageViews: 0, sessions: 0 },
           summary: {
-            visitsToday: localTraffic.visitsToday,
-            visitsThisMonth: localTraffic.visitsThisMonth,
-            pageviewsThisMonth: localTraffic.pageviewsThisMonth,
+            visitsToday: 0,
+            visitsThisMonth: 0,
+            pageviewsThisMonth: 0,
           },
         });
       }
@@ -270,9 +237,9 @@ export async function GET(request: NextRequest) {
         points,
         totals,
         summary: {
-          visitsToday: Math.max(gaVisitsToday, localTraffic.visitsToday),
-          visitsThisMonth: Math.max(gaVisitsMonth, localTraffic.visitsThisMonth),
-          pageviewsThisMonth: Math.max(gaPageviewsMonth, localTraffic.pageviewsThisMonth),
+          visitsToday: gaVisitsToday,
+          visitsThisMonth: gaVisitsMonth,
+          pageviewsThisMonth: gaPageviewsMonth,
         },
       });
     } catch (err: unknown) {
@@ -287,9 +254,9 @@ export async function GET(request: NextRequest) {
         points: buildDateRangePoints(days, []),
         totals: { users: 0, pageViews: 0, sessions: 0 },
         summary: {
-          visitsToday: localTraffic.visitsToday,
-          visitsThisMonth: localTraffic.visitsThisMonth,
-          pageviewsThisMonth: localTraffic.pageviewsThisMonth,
+          visitsToday: 0,
+          visitsThisMonth: 0,
+          pageviewsThisMonth: 0,
         },
       });
     }

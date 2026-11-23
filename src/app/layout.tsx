@@ -6,7 +6,6 @@ import { ForumAuthProvider } from "@/context/ForumAuthContext";
 import { RegionProvider } from "@/context/RegionContext";
 import { DialogProvider } from "@/components/ConfirmDialog/ConfirmDialog";
 import GoogleAnalyticsTag from "@/components/GoogleAnalyticsTag/GoogleAnalyticsTag";
-import SiteTrafficTracker from "@/components/SiteTrafficTracker/SiteTrafficTracker";
 import { getTechnicalSettings } from "@/lib/technicalSettings";
 import { REGION_COOKIE_NAME, isValidRegion } from "@/lib/regions";
 
@@ -77,7 +76,6 @@ export default async function RootLayout({
       </head>
       <body className={montserrat.className}>
         <GoogleAnalyticsTag />
-        <SiteTrafficTracker />
         <DialogProvider>
           <RegionProvider initialRegion={initialRegion}>
             <ForumAuthProvider>
