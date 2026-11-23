@@ -198,13 +198,12 @@ export default async function OfferDetailPage({ params }: PageProps) {
                   fontWeight: 600,
                 }}
               >
-                ⏰ This freebie expired on{' '}
-                {new Date(offer.expiresAt!).toLocaleDateString()} and may no longer be available.
+                This freebie expired on {new Date(offer.expiresAt!).toLocaleDateString()} — we hope it comes back again soon!
               </div>
             ) : offer.expiresAt ? (
               <div className={styles.metaRow}>
                 <span className={styles.expiry}>
-                  ⏰ Expires: {new Date(offer.expiresAt).toLocaleDateString()}
+                  Expires: {new Date(offer.expiresAt).toLocaleDateString()}
                 </span>
               </div>
             ) : null}
