@@ -726,19 +726,7 @@ export default function AdminOffersPage() {
                           {!offer.isActive ? (
                             <span className={styles.statusInactive}>Inactive</span>
                           ) : isOfferExpired(offer.expiresAt) ? (
-                            <span
-                              style={{
-                                display: 'inline-block',
-                                fontSize: '12px',
-                                fontWeight: 700,
-                                padding: '3px 10px',
-                                borderRadius: '9999px',
-                                background: 'rgba(107, 114, 128, 0.14)',
-                                color: '#4b5563',
-                              }}
-                            >
-                              Expired
-                            </span>
+                            <span className={styles.statusInactive}>Expired</span>
                           ) : (
                             <span className={styles.statusActive}>Active</span>
                           )}
