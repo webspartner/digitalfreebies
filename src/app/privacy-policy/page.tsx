@@ -36,7 +36,7 @@ export default function PrivacyPolicyPage() {
               <div className={styles.metaRow}>
                 <span>Effective Date: October 6, 2026</span>
                 <span>•</span>
-                <span>Last Updated: October 2026</span>
+                <span>Last Updated: November 23, 2026</span>
                 <span>•</span>
                 <span>DigitalFreebies.io</span>
               </div>
@@ -230,6 +230,35 @@ export default function PrivacyPolicyPage() {
                       style={{ color: 'var(--color-primary)' }}
                     >
                       Microsoft Privacy Statement
+                    </a>.
+                  </li>
+                </ul>
+
+                <h3>Google AdSense &amp; Third-Party Advertising Cookies</h3>
+                <div className={styles.highlightBox}>
+                  <strong>Advertising Disclosure:</strong> Third-party vendors, including <strong>Google</strong>, use cookies to serve ads based on a user&rsquo;s prior visits to DigitalFreebies.io or other websites. Google&rsquo;s use of advertising cookies enables it and its partners to serve ads to users based on their visit to this site and/or other sites on the Internet.
+                </div>
+                <ul>
+                  <li>
+                    <strong>Opt Out of Google Personalized Ads:</strong> You may opt out of personalized advertising by visiting{' '}
+                    <a
+                      href="https://adssettings.google.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: 'var(--color-primary)', fontWeight: 600 }}
+                    >
+                      Google Ads Settings (adssettings.google.com)
+                    </a>.
+                  </li>
+                  <li>
+                    <strong>Opt Out of Third-Party Vendor Cookies:</strong> Alternatively, you can opt out of a third-party vendor&rsquo;s use of cookies for personalized advertising by visiting{' '}
+                    <a
+                      href="https://www.aboutads.info"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: 'var(--color-primary)', fontWeight: 600 }}
+                    >
+                      AboutAds (www.aboutads.info)
                     </a>.
                   </li>
                 </ul>

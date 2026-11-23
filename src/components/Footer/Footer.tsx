@@ -66,7 +66,7 @@ export default function Footer({ hideNewsletter = false }: FooterProps) {
             </a>
           </div>
           <p className={styles.footerDisclaimer}>
-            All product names, logos, and brands are property of their respective owners and are used for identification purposes only. This site is independent and not affiliated with or endorsed by any listed company.
+            All product names, logos, and brands are property of their respective owners and are used for identification purposes only. DigitalFreebies.io is an independent directory and is not affiliated with, sponsored by, or endorsed by any listed company.
           </p>
         </div>
 
@@ -87,9 +87,9 @@ export default function Footer({ hideNewsletter = false }: FooterProps) {
         <div className={styles.footerColumn}>
           <h4>Company</h4>
           <div className={styles.footerLinks}>
-            <a href="mailto:info@digitalfreebies.com" className={styles.footerLink}>Contact</a>
-            <a href="mailto:info@digitalfreebies.com" className={styles.footerLink}>Advertise</a>
+            <Link href="/legal#takedowns" className={styles.footerLink}>Contact</Link>
             <Link href="/#faq" className={styles.footerLink}>FAQ</Link>
+            <Link href="/forum" className={styles.footerLink}>Community Forum</Link>
           </div>
         </div>
 
@@ -97,6 +97,7 @@ export default function Footer({ hideNewsletter = false }: FooterProps) {
         <div className={styles.footerColumn}>
           <h4>Legal</h4>
           <div className={styles.footerLinks}>
+            <Link href="/legal" className={styles.footerLink}>Legal &amp; Takedowns</Link>
             <Link href="/privacy-policy" className={styles.footerLink}>Privacy Policy</Link>
             <Link href="/terms-of-service" className={styles.footerLink}>Terms of Service</Link>
             <Link href="/privacy-policy#cookies" className={styles.footerLink}>Cookie Policy</Link>
@@ -110,6 +111,7 @@ export default function Footer({ hideNewsletter = false }: FooterProps) {
         <div className={styles.footerBottomContent}>
           <span>© {new Date().getFullYear()} DigitalFreebies.io — All rights reserved.</span>
           <div className={styles.footerBottomLinks}>
+            <Link href="/legal" className={styles.footerBottomLink}>Legal &amp; Takedowns</Link>
             <Link href="/privacy-policy" className={styles.footerBottomLink}>Privacy</Link>
             <Link href="/terms-of-service" className={styles.footerBottomLink}>Terms</Link>
             <Link href="/disclaimer" className={styles.footerBottomLink}>Disclaimer</Link>
