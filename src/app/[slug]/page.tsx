@@ -184,8 +184,8 @@ export default async function OfferDetailPage({ params }: PageProps) {
             {/* Title */}
             <h1 className={styles.title}>{offer.title}</h1>
 
-            {/* Meta info / Expired notice */}
-            {expired ? (
+            {/* Expired notice */}
+            {expired && (
               <div
                 style={{
                   background: '#f3f4f6',
@@ -200,13 +200,7 @@ export default async function OfferDetailPage({ params }: PageProps) {
               >
                 This freebie expired on {new Date(offer.expiresAt!).toLocaleDateString()} — we hope it comes back again soon!
               </div>
-            ) : offer.expiresAt ? (
-              <div className={styles.metaRow}>
-                <span className={styles.expiry}>
-                  Expires: {new Date(offer.expiresAt).toLocaleDateString()}
-                </span>
-              </div>
-            ) : null}
+            )}
 
             {/* Description */}
             <div className={styles.descriptionSection}>
@@ -264,9 +258,14 @@ export default async function OfferDetailPage({ params }: PageProps) {
               <ShareButton slug={offer.slug} />
             </div>
 
-            {/* Not working link */}
+            {/* Not working link & active expiration date */}
             <div className={styles.feedbackRow}>
               <ReportOfferButton offerId={offer.id} />
+              {!expired && offer.expiresAt && (
+                <span className={styles.expiry}>
+                  Expires: {new Date(offer.expiresAt).toLocaleDateString()}
+                </span>
+              )}
             </div>
           </article>
 

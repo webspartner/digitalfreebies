@@ -266,6 +266,11 @@
 .feedbackRow {
   padding-top: var(--space-4, 16px);
   border-top: 1px solid var(--color-gray-200, #eeeeee);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .feedbackLink {
