@@ -13,6 +13,7 @@ interface DailyPoint {
 
 interface AnalyticsResponse {
   configured: boolean;
+  source?: 'ga4' | 'local';
   measurementId: string;
   propertyId: string;
   hasServiceAccount: boolean;
@@ -229,10 +230,10 @@ export default function AdminAnalyticsGraph() {
               Google Analytics Traffic
             </h2>
             <p style={{ fontSize: '12px', color: 'var(--color-gray-500)', margin: 0 }}>
-              {isAttached
-                ? `Connected${data?.measurementId ? ` • ${data.measurementId}` : ''} (Property #${data?.propertyId})`
-                : data?.measurementId
-                ? `Tracking Tag Active (${data.measurementId}) — Attach Property ID & Service Account Key for Graph`
+              {isAttached && data?.propertyId && data?.hasServiceAccount
+                ? `Connected${data?.measurementId ? ` • ${data.measurementId}` : ''} (GA4 Property #${data.propertyId})`
+                : isAttached
+                ? `GA4 Tag Active (${data?.measurementId}) • Live Site Traffic Graph`
                 : 'Not attached yet — Connect your Google Analytics 4 credentials below'}
             </p>
           </div>

@@ -141,14 +141,46 @@ export async function GET(request: NextRequest) {
     const localTraffic = await getTrafficSummary();
 
     if (!isGraphConfigured) {
+      const points: DailyPoint[] = [];
+      const today = new Date();
+
+      for (let i = days - 1; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(today.getDate() - i);
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        const iso = `${yyyy}-${mm}-${dd}`;
+        const label = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const rec = localTraffic.dailyRecords[iso];
+
+        points.push({
+          date: iso,
+          label,
+          users: rec?.uniqueVisitors || 0,
+          pageViews: rec?.pageViews || 0,
+          sessions: rec?.visits || 0,
+        });
+      }
+
+      const totals = points.reduce(
+        (acc, pt) => ({
+          users: acc.users + pt.users,
+          pageViews: acc.pageViews + pt.pageViews,
+          sessions: acc.sessions + pt.sessions,
+        }),
+        { users: 0, pageViews: 0, sessions: 0 }
+      );
+
       return NextResponse.json({
-        configured: false,
+        configured: Boolean(measurementId),
+        source: 'local',
         measurementId,
         propertyId,
         hasServiceAccount: Boolean(clientEmail && privateKey),
         clientEmail,
-        points: [],
-        totals: { users: 0, pageViews: 0, sessions: 0 },
+        points,
+        totals,
         summary: {
           visitsToday: localTraffic.visitsToday,
           visitsThisMonth: localTraffic.visitsThisMonth,
