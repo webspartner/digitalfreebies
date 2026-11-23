@@ -105,6 +105,47 @@ function buildDateRangePoints(
   return points;
 }
 
+function buildHourlyRangePoints(
+  rows: Array<{ dimensionValues?: Array<{ value?: string }>; metricValues?: Array<{ value?: string }> }>
+): DailyPoint[] {
+  const rowMap = new Map<string, { users: number; pageViews: number; sessions: number }>();
+
+  for (const row of rows) {
+    const rawDateHour = row.dimensionValues?.[0]?.value || ''; // YYYYMMDDHH
+    if (rawDateHour.length === 10) {
+      rowMap.set(rawDateHour, {
+        users: Number(row.metricValues?.[0]?.value || 0),
+        pageViews: Number(row.metricValues?.[1]?.value || 0),
+        sessions: Number(row.metricValues?.[2]?.value || 0),
+      });
+    }
+  }
+
+  const points: DailyPoint[] = [];
+  const now = new Date();
+
+  for (let i = 23; i >= 0; i--) {
+    const d = new Date(now.getTime() - i * 60 * 60 * 1000);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const hh = String(d.getHours()).padStart(2, '0');
+    const key = `${yyyy}${mm}${dd}${hh}`;
+    const label = `${hh}:00`;
+    const metrics = rowMap.get(key) || { users: 0, pageViews: 0, sessions: 0 };
+
+    points.push({
+      date: `${yyyy}-${mm}-${dd} ${hh}:00`,
+      label,
+      users: metrics.users,
+      pageViews: metrics.pageViews,
+      sessions: metrics.sessions,
+    });
+  }
+
+  return points;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const authHeader = request.headers.get('authorization');
@@ -116,7 +157,7 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const daysParam = parseInt(searchParams.get('days') || '14', 10);
-    const days = [7, 14, 30].includes(daysParam) ? daysParam : 14;
+    const days = [1, 7, 14, 30].includes(daysParam) ? daysParam : 14;
 
     const settings = await prisma.analyticsSettings.findUnique({ where: { id: 1 } });
 
@@ -160,14 +201,16 @@ export async function GET(request: NextRequest) {
       const accessToken = await getGoogleAccessToken(clientEmail, privateKey);
       const cleanPropId = propertyId.replace(/^properties\//i, '').trim();
 
-      const reportRes = await fetch(
+      const reportHeaders = {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      };
+
+      const dailyReportPromise = fetch(
         `https://analyticsdata.googleapis.com/v1beta/properties/${cleanPropId}:runReport`,
         {
           method: 'POST',
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-          },
+          headers: reportHeaders,
           body: JSON.stringify({
             dateRanges: [{ startDate: '30daysAgo', endDate: 'today' }],
             dimensions: [{ name: 'date' }],
@@ -181,6 +224,44 @@ export async function GET(request: NextRequest) {
         }
       );
 
+      const hourlyReportPromise =
+        days === 1
+          ? fetch(
+              `https://analyticsdata.googleapis.com/v1beta/properties/${cleanPropId}:runReport`,
+              {
+                method: 'POST',
+                headers: reportHeaders,
+                body: JSON.stringify({
+                  dateRanges: [{ startDate: 'yesterday', endDate: 'today' }],
+                  dimensions: [{ name: 'dateHour' }],
+                  metrics: [
+                    { name: 'activeUsers' },
+                    { name: 'screenPageViews' },
+                    { name: 'sessions' },
+                  ],
+                  orderBys: [{ dimension: { dimensionName: 'dateHour' } }],
+                }),
+              }
+            )
+          : Promise.resolve(null);
+
+      const realtimePromise = fetch(
+        `https://analyticsdata.googleapis.com/v1beta/properties/${cleanPropId}:runRealtimeReport`,
+        {
+          method: 'POST',
+          headers: reportHeaders,
+          body: JSON.stringify({
+            metrics: [{ name: 'activeUsers' }],
+          }),
+        }
+      ).catch(() => null);
+
+      const [reportRes, hourlyRes, realtimeRes] = await Promise.all([
+        dailyReportPromise,
+        hourlyReportPromise,
+        realtimePromise,
+      ]);
+
       const reportData = await reportRes.json();
 
       if (!reportRes.ok) {
@@ -193,7 +274,8 @@ export async function GET(request: NextRequest) {
           hasServiceAccount: true,
           clientEmail,
           apiError: apiErr,
-          points: buildDateRangePoints(days, []),
+          activeNow: 0,
+          points: days === 1 ? buildHourlyRangePoints([]) : buildDateRangePoints(days, []),
           totals: { users: 0, pageViews: 0, sessions: 0 },
           summary: {
             visitsToday: 0,
@@ -203,8 +285,28 @@ export async function GET(request: NextRequest) {
         });
       }
 
+      let activeNow = 0;
+      if (realtimeRes && realtimeRes.ok) {
+        try {
+          const realtimeData = await realtimeRes.json();
+          activeNow = Number(realtimeData?.rows?.[0]?.metricValues?.[0]?.value || 0);
+        } catch {
+          activeNow = 0;
+        }
+      }
+
       const points30 = buildDateRangePoints(30, reportData.rows || []);
-      const points = points30.slice(30 - days);
+      let points: DailyPoint[];
+
+      if (days === 1 && hourlyRes && hourlyRes.ok) {
+        const hourlyData = await hourlyRes.json();
+        points = buildHourlyRangePoints(hourlyData.rows || []);
+      } else if (days === 1) {
+        points = buildHourlyRangePoints([]);
+      } else {
+        points = points30.slice(30 - days);
+      }
+
       const totals = points.reduce(
         (acc, p) => ({
           users: acc.users + p.users,
@@ -234,6 +336,7 @@ export async function GET(request: NextRequest) {
         propertyId: cleanPropId,
         hasServiceAccount: true,
         clientEmail,
+        activeNow,
         points,
         totals,
         summary: {

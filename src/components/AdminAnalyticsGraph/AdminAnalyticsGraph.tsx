@@ -19,6 +19,7 @@ interface AnalyticsResponse {
   hasServiceAccount: boolean;
   clientEmail?: string;
   apiError?: string;
+  activeNow?: number;
   points: DailyPoint[];
   totals: {
     users: number;
@@ -29,7 +30,7 @@ interface AnalyticsResponse {
 
 export default function AdminAnalyticsGraph() {
   const { confirm } = useDialog();
-  const [days, setDays] = useState<7 | 14 | 30>(14);
+  const [days, setDays] = useState<1 | 7 | 14 | 30>(14);
   const [metric, setMetric] = useState<'users' | 'pageViews' | 'sessions'>('users');
   const [data, setData] = useState<AnalyticsResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -241,6 +242,34 @@ export default function AdminAnalyticsGraph() {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
           {isAttached && !showConfigForm && (
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                background: 'rgba(34, 197, 94, 0.12)',
+                color: '#15803d',
+                fontWeight: 700,
+                fontSize: '12px',
+                padding: '5px 11px',
+                borderRadius: '9999px',
+              }}
+              title="Active visitors on your site right now (GA4 Realtime)"
+            >
+              <span
+                style={{
+                  width: '7px',
+                  height: '7px',
+                  borderRadius: '50%',
+                  background: '#22c55e',
+                  display: 'inline-block',
+                }}
+              />
+              {(data?.activeNow ?? 0).toLocaleString()} Active Now
+            </span>
+          )}
+
+          {isAttached && !showConfigForm && (
             <div
               style={{
                 display: 'inline-flex',
@@ -250,7 +279,7 @@ export default function AdminAnalyticsGraph() {
                 gap: '2px',
               }}
             >
-              {([7, 14, 30] as const).map((d) => (
+              {([1, 7, 14, 30] as const).map((d) => (
                 <button
                   key={d}
                   type="button"
