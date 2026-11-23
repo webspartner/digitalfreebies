@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import styles from '../admin.module.css';
 import AdminNav from '@/components/AdminNav/AdminNav';
+import { isOfferExpired } from '@/lib/utils';
 
 interface OfferReportItem {
   id: number;
@@ -20,6 +21,7 @@ interface ReportedOffer {
   category: string;
   offerUrl: string;
   isActive: boolean;
+  expiresAt?: string | null;
   _count?: {
     reports: number;
   };
@@ -262,9 +264,13 @@ export default function AdminNotWorkingPage() {
                           </div>
                         </td>
                         <td>
-                          <span className={offer.isActive ? styles.statusActive : styles.statusInactive}>
-                            {offer.isActive ? 'Active' : 'Inactive'}
-                          </span>
+                          {!offer.isActive ? (
+                            <span className={styles.statusInactive}>Inactive</span>
+                          ) : isOfferExpired(offer.expiresAt) ? (
+                            <span className={styles.statusInactive}>Expired</span>
+                          ) : (
+                            <span className={styles.statusActive}>Active</span>
+                          )}
                         </td>
                         <td>
                           <div className={styles.tableActions}>

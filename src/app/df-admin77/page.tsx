@@ -90,7 +90,7 @@ export default function AdminDashboard() {
   const fetchData = async (token: string) => {
     try {
       const [offersRes, notWorkingRes, analyticsRes] = await Promise.all([
-        fetch('/api/offers?limit=100', { headers: { 'Authorization': `Bearer ${token}` } }),
+        fetch('/api/offers?limit=500&all=true', { headers: { 'Authorization': `Bearer ${token}` } }),
         fetch('/api/admin/not-working', { headers: { 'Authorization': `Bearer ${token}` } }),
         fetch('/api/admin/analytics?days=30', { headers: { 'Authorization': `Bearer ${token}` } }),
       ]);
@@ -411,9 +411,13 @@ export default function AdminDashboard() {
                           </span>
                         </td>
                         <td>
-                          <span className={offer.isActive ? styles.statusActive : styles.statusInactive}>
-                            {offer.isActive ? 'Active' : 'Inactive'}
-                          </span>
+                          {!offer.isActive ? (
+                            <span className={styles.statusInactive}>Inactive</span>
+                          ) : isOfferExpired(offer.expiresAt) ? (
+                            <span className={styles.statusInactive}>Expired</span>
+                          ) : (
+                            <span className={styles.statusActive}>Active</span>
+                          )}
                         </td>
                         <td>
                           <div className={styles.tableActions}>
